@@ -1,6 +1,7 @@
 from datetime import datetime
+from random import randrange
 
-from flask import Flask
+from flask import Flask, render_template
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
@@ -20,11 +21,19 @@ class Opinion(db.Model):
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
 
 
-
 @app.route('/')
 def index_view():
-    print(app.config)
-    return 'Совсем скоро тут будет случайное мнение о фильме!'
+    quantity = Opinion.query.count()
+    if not quantity:
+        return 'В базе данных мнений о фильмах нет.'
+    offset_value = randrange(quantity)
+    opinion = Opinion.query.offset(offset_value).first()
+    return render_template('index.html', opinion=opinion)
+
+
+@app.route('/add')
+def add_opinion_view():
+    return 'Страница в разработке!'
 
 
 if __name__ == '__main__':
